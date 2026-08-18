@@ -13,9 +13,8 @@ const player = {
     x: 300,
     y: 200,
     width: 50,
-    height: 50,
-    speed: 5,
-    color: "#00ff66"
+    height: 70,
+    speed: 5
 };
 
 const keys = {};
@@ -29,7 +28,6 @@ window.addEventListener("keyup", (event) => {
 });
 
 function updatePlayer() {
-
     if (keys["w"]) {
         player.y -= player.speed;
     }
@@ -46,7 +44,7 @@ function updatePlayer() {
         player.x += player.speed;
     }
 
-    // No permitir que el jugador salga de la pantalla
+    // Mantener al jugador dentro de la pantalla
 
     if (player.x < 0) {
         player.x = 0;
@@ -66,20 +64,61 @@ function updatePlayer() {
 }
 
 function drawPlayer() {
-    ctx.fillStyle = player.color;
-    ctx.fillRect(
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
+    const x = player.x;
+    const y = player.y;
+
+    // Sombra
+    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.beginPath();
+    ctx.ellipse(x + 25, y + 68, 23, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pierna izquierda
+    ctx.fillStyle = "#303030";
+    ctx.fillRect(x + 10, y + 48, 11, 20);
+
+    // Pierna derecha
+    ctx.fillRect(x + 29, y + 48, 11, 20);
+
+    // Cuerpo
+    ctx.fillStyle = "#00ff66";
+    ctx.fillRect(x + 7, y + 24, 36, 30);
+
+    // Cabeza
+    ctx.fillStyle = "#f0b27a";
+    ctx.beginPath();
+    ctx.arc(x + 25, y + 14, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pelo
+    ctx.fillStyle = "#202020";
+    ctx.beginPath();
+    ctx.arc(x + 25, y + 10, 14, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    // Brazo izquierdo
+    ctx.fillStyle = "#f0b27a";
+    ctx.fillRect(x, y + 28, 8, 22);
+
+    // Brazo derecho
+    ctx.fillRect(x + 42, y + 28, 8, 22);
+
+    // Ojos
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(x + 19, y + 12, 3, 3);
+    ctx.fillRect(x + 29, y + 12, 3, 3);
+
+    // Detalle del cuerpo
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x + 20, y + 31, 10, 8);
 }
 
 function gameLoop() {
-
+    // Fondo
     ctx.fillStyle = "#202020";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Título
     ctx.fillStyle = "white";
     ctx.font = "32px Arial";
     ctx.fillText("CHAIN-BREAKER ENGINE", 20, 45);

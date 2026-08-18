@@ -10,7 +10,7 @@ The goal is to create fast, fun and accessible browser multiplayer games that an
 
 ## Current Version
 
-v0.0.3
+v0.0.4
 
 ---
 
