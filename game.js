@@ -155,13 +155,37 @@ const decorations = [
 ];
 
 // ==========================================
+// INTERACTIVE OBJECTS
+// ==========================================
+
+const interactiveObjects = [
+    {
+        x: 620,
+        y: 350,
+        width: 60,
+        height: 60,
+        type: "crate",
+        active: false
+    }
+];
+
+const interactionDistance = 100;
+let nearbyObject = null;
+
+// ==========================================
 // INPUT
 // ==========================================
 
 const keys = {};
 
 window.addEventListener("keydown", (event) => {
-    keys[event.key.toLowerCase()] = true;
+    const key = event.key.toLowerCase();
+
+    keys[key] = true;
+
+    if (key === "e") {
+        interactWithObject();
+    }
 });
 
 window.addEventListener("keyup", (event) => {
@@ -182,7 +206,28 @@ function isColliding(a, b) {
 }
 
 // ==========================================
-// GET DECORATION COLLISION BOX
+// DISTANCE
+// ==========================================
+
+function getDistanceBetweenObjects(a, b) {
+
+    const centerAX = a.x + a.width / 2;
+    const centerAY = a.y + a.height / 2;
+
+    const centerBX = b.x + b.width / 2;
+    const centerBY = b.y + b.height / 2;
+
+    const distanceX = centerAX - centerBX;
+    const distanceY = centerAY - centerBY;
+
+    return Math.sqrt(
+        distanceX * distanceX +
+        distanceY * distanceY
+    );
+}
+
+// ==========================================
+// DECORATION COLLISION BOX
 // ==========================================
 
 function getDecorationCollisionBox(decoration) {
@@ -214,16 +259,12 @@ function getDecorationCollisionBox(decoration) {
 
 function isBlocked(position) {
 
-    // Check walls
-
     for (const wall of walls) {
 
         if (isColliding(position, wall)) {
             return true;
         }
     }
-
-    // Check trees and rocks
 
     for (const decoration of decorations) {
 
@@ -234,6 +275,13 @@ function isBlocked(position) {
             collisionBox &&
             isColliding(position, collisionBox)
         ) {
+            return true;
+        }
+    }
+
+    for (const object of interactiveObjects) {
+
+        if (isColliding(position, object)) {
             return true;
         }
     }
@@ -266,8 +314,6 @@ function movePlayer() {
         nextX += player.speed;
     }
 
-    // Horizontal movement
-
     const horizontalPosition = {
         x: nextX,
         y: player.y,
@@ -279,8 +325,6 @@ function movePlayer() {
         player.x = nextX;
     }
 
-    // Vertical movement
-
     const verticalPosition = {
         x: player.x,
         y: nextY,
@@ -291,8 +335,6 @@ function movePlayer() {
     if (!isBlocked(verticalPosition)) {
         player.y = nextY;
     }
-
-    // Keep player inside world
 
     if (player.x < 0) {
         player.x = 0;
@@ -309,6 +351,46 @@ function movePlayer() {
     if (player.y + player.height > world.height) {
         player.y = world.height - player.height;
     }
+}
+
+// ==========================================
+// FIND NEARBY OBJECT
+// ==========================================
+
+function updateNearbyObject() {
+
+    nearbyObject = null;
+
+    let closestDistance = Infinity;
+
+    for (const object of interactiveObjects) {
+
+        const distance = getDistanceBetweenObjects(
+            player,
+            object
+        );
+
+        if (
+            distance <= interactionDistance &&
+            distance < closestDistance
+        ) {
+            nearbyObject = object;
+            closestDistance = distance;
+        }
+    }
+}
+
+// ==========================================
+// INTERACTION
+// ==========================================
+
+function interactWithObject() {
+
+    if (!nearbyObject) {
+        return;
+    }
+
+    nearbyObject.active = !nearbyObject.active;
 }
 
 // ==========================================
@@ -374,7 +456,7 @@ function drawZones() {
 }
 
 // ==========================================
-// DRAW MAP GRID
+// DRAW MAP DETAILS
 // ==========================================
 
 function drawMapDetails() {
@@ -387,20 +469,16 @@ function drawMapDetails() {
     for (let x = 0; x <= world.width; x += gridSize) {
 
         ctx.beginPath();
-
         ctx.moveTo(x, 60);
         ctx.lineTo(x, world.height);
-
         ctx.stroke();
     }
 
     for (let y = 60; y <= world.height; y += gridSize) {
 
         ctx.beginPath();
-
         ctx.moveTo(0, y);
         ctx.lineTo(world.width, y);
-
         ctx.stroke();
     }
 }
@@ -440,8 +518,6 @@ function drawWalls() {
 
 function drawTree(x, y) {
 
-    // Shadow
-
     ctx.fillStyle = "rgba(0,0,0,0.25)";
 
     ctx.beginPath();
@@ -458,8 +534,6 @@ function drawTree(x, y) {
 
     ctx.fill();
 
-    // Trunk
-
     ctx.fillStyle = "#5b3a24";
 
     ctx.fillRect(
@@ -468,8 +542,6 @@ function drawTree(x, y) {
         12,
         30
     );
-
-    // Leaves
 
     ctx.fillStyle = "#1f6b3a";
 
@@ -548,7 +620,6 @@ function drawRock(x, y) {
     ctx.fill();
 
     ctx.strokeStyle = "#999999";
-
     ctx.stroke();
 }
 
@@ -577,6 +648,69 @@ function drawDecorations() {
 }
 
 // ==========================================
+// DRAW INTERACTIVE OBJECTS
+// ==========================================
+
+function drawInteractiveObjects() {
+
+    for (const object of interactiveObjects) {
+
+        ctx.fillStyle = object.active
+            ? "#35d0ff"
+            : "#b87532";
+
+        ctx.fillRect(
+            object.x,
+            object.y,
+            object.width,
+            object.height
+        );
+
+        ctx.strokeStyle = object.active
+            ? "#b8f3ff"
+            : "#e5b477";
+
+        ctx.lineWidth = 3;
+
+        ctx.strokeRect(
+            object.x,
+            object.y,
+            object.width,
+            object.height
+        );
+
+        // Detalles de la caja
+
+        ctx.strokeStyle = "#3a2415";
+        ctx.lineWidth = 4;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            object.x,
+            object.y
+        );
+
+        ctx.lineTo(
+            object.x + object.width,
+            object.y + object.height
+        );
+
+        ctx.moveTo(
+            object.x + object.width,
+            object.y
+        );
+
+        ctx.lineTo(
+            object.x,
+            object.y + object.height
+        );
+
+        ctx.stroke();
+    }
+}
+
+// ==========================================
 // DRAW WORLD
 // ==========================================
 
@@ -599,11 +733,9 @@ function drawWorld() {
     );
 
     drawZones();
-
     drawMapDetails();
-
     drawDecorations();
-
+    drawInteractiveObjects();
     drawWalls();
 
     ctx.restore();
@@ -625,9 +757,7 @@ function drawPlayer() {
         -camera.y
     );
 
-    // Shadow
-
-    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
 
     ctx.beginPath();
 
@@ -642,8 +772,6 @@ function drawPlayer() {
     );
 
     ctx.fill();
-
-    // Legs
 
     ctx.fillStyle = "#303030";
 
@@ -661,8 +789,6 @@ function drawPlayer() {
         20
     );
 
-    // Body
-
     ctx.fillStyle = "#00ff66";
 
     ctx.fillRect(
@@ -671,8 +797,6 @@ function drawPlayer() {
         36,
         30
     );
-
-    // Head
 
     ctx.fillStyle = "#f0b27a";
 
@@ -688,8 +812,6 @@ function drawPlayer() {
 
     ctx.fill();
 
-    // Hair
-
     ctx.fillStyle = "#202020";
 
     ctx.beginPath();
@@ -703,8 +825,6 @@ function drawPlayer() {
     );
 
     ctx.fill();
-
-    // Arms
 
     ctx.fillStyle = "#f0b27a";
 
@@ -722,8 +842,6 @@ function drawPlayer() {
         22
     );
 
-    // Eyes
-
     ctx.fillStyle = "#111111";
 
     ctx.fillRect(
@@ -740,8 +858,6 @@ function drawPlayer() {
         3
     );
 
-    // Body detail
-
     ctx.fillStyle = "#ffffff";
 
     ctx.fillRect(
@@ -755,13 +871,12 @@ function drawPlayer() {
 }
 
 // ==========================================
-// UI
+// DRAW UI
 // ==========================================
 
 function drawUI() {
 
     ctx.fillStyle = "white";
-
     ctx.font = "32px Arial";
 
     ctx.fillText(
@@ -777,6 +892,18 @@ function drawUI() {
         20,
         canvas.height - 20
     );
+
+    if (nearbyObject) {
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "20px Arial";
+
+        ctx.fillText(
+            "Press E to interact",
+            20,
+            75
+        );
+    }
 }
 
 // ==========================================
@@ -786,6 +913,8 @@ function drawUI() {
 function gameLoop() {
 
     movePlayer();
+
+    updateNearbyObject();
 
     updateCamera();
 
