@@ -39,6 +39,52 @@ const world = {
     height: 1600
 };
 
+// ==========================================
+// MAP ZONES
+// ==========================================
+
+const zones = [
+    {
+        x: 0,
+        y: 60,
+        width: 900,
+        height: 700,
+        type: "grass"
+    },
+    {
+        x: 900,
+        y: 60,
+        width: 700,
+        height: 700,
+        type: "stone"
+    },
+    {
+        x: 1600,
+        y: 60,
+        width: 800,
+        height: 700,
+        type: "grass"
+    },
+    {
+        x: 0,
+        y: 760,
+        width: 1200,
+        height: 840,
+        type: "sand"
+    },
+    {
+        x: 1200,
+        y: 760,
+        width: 1200,
+        height: 840,
+        type: "grass"
+    }
+];
+
+// ==========================================
+// WALLS
+// ==========================================
+
 const walls = [
     {
         x: 150,
@@ -88,6 +134,24 @@ const walls = [
         width: 600,
         height: 30
     }
+];
+
+// ==========================================
+// DECORATION
+// ==========================================
+
+const decorations = [
+    { x: 100, y: 220, type: "tree" },
+    { x: 700, y: 300, type: "tree" },
+    { x: 350, y: 650, type: "tree" },
+    { x: 950, y: 850, type: "tree" },
+    { x: 1500, y: 1300, type: "tree" },
+    { x: 2100, y: 850, type: "tree" },
+
+    { x: 500, y: 800, type: "rock" },
+    { x: 1000, y: 400, type: "rock" },
+    { x: 1750, y: 180, type: "rock" },
+    { x: 2200, y: 1200, type: "rock" }
 ];
 
 // ==========================================
@@ -152,6 +216,7 @@ function movePlayer() {
     let blocked = false;
 
     for (const wall of walls) {
+
         if (isColliding(futurePosition, wall)) {
             blocked = true;
             break;
@@ -198,8 +263,6 @@ function updateCamera() {
         player.height / 2 -
         canvas.height / 2;
 
-    // Limitar cámara al mundo
-
     if (camera.x < 0) {
         camera.x = 0;
     }
@@ -218,6 +281,238 @@ function updateCamera() {
 }
 
 // ==========================================
+// DRAW ZONES
+// ==========================================
+
+function drawZones() {
+
+    for (const zone of zones) {
+
+        if (zone.type === "grass") {
+            ctx.fillStyle = "#26352b";
+        }
+
+        if (zone.type === "stone") {
+            ctx.fillStyle = "#353535";
+        }
+
+        if (zone.type === "sand") {
+            ctx.fillStyle = "#66583b";
+        }
+
+        ctx.fillRect(
+            zone.x,
+            zone.y,
+            zone.width,
+            zone.height
+        );
+    }
+}
+
+// ==========================================
+// DRAW MAP GRID
+// ==========================================
+
+function drawMapDetails() {
+
+    ctx.strokeStyle = "rgba(255,255,255,0.035)";
+    ctx.lineWidth = 1;
+
+    const gridSize = 100;
+
+    for (let x = 0; x <= world.width; x += gridSize) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x, 60);
+        ctx.lineTo(x, world.height);
+
+        ctx.stroke();
+    }
+
+    for (let y = 60; y <= world.height; y += gridSize) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(0, y);
+        ctx.lineTo(world.width, y);
+
+        ctx.stroke();
+    }
+}
+
+// ==========================================
+// DRAW WALLS
+// ==========================================
+
+function drawWalls() {
+
+    for (const wall of walls) {
+
+        ctx.fillStyle = "#6b6b6b";
+
+        ctx.fillRect(
+            wall.x,
+            wall.y,
+            wall.width,
+            wall.height
+        );
+
+        ctx.strokeStyle = "#999999";
+        ctx.lineWidth = 2;
+
+        ctx.strokeRect(
+            wall.x,
+            wall.y,
+            wall.width,
+            wall.height
+        );
+    }
+}
+
+// ==========================================
+// DRAW TREE
+// ==========================================
+
+function drawTree(x, y) {
+
+    // Shadow
+
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        x,
+        y + 35,
+        28,
+        8,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    // Trunk
+
+    ctx.fillStyle = "#5b3a24";
+
+    ctx.fillRect(
+        x - 6,
+        y,
+        12,
+        30
+    );
+
+    // Leaves
+
+    ctx.fillStyle = "#1f6b3a";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y - 5,
+        25,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle = "#2d8a4d";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x - 12,
+        y - 10,
+        16,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x + 12,
+        y - 10,
+        16,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+}
+
+// ==========================================
+// DRAW ROCK
+// ==========================================
+
+function drawRock(x, y) {
+
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        x,
+        y + 12,
+        25,
+        7,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle = "#777777";
+
+    ctx.beginPath();
+
+    ctx.moveTo(x - 20, y + 10);
+    ctx.lineTo(x - 15, y - 10);
+    ctx.lineTo(x + 5, y - 18);
+    ctx.lineTo(x + 22, y - 5);
+    ctx.lineTo(x + 15, y + 12);
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.strokeStyle = "#999999";
+
+    ctx.stroke();
+}
+
+// ==========================================
+// DRAW DECORATIONS
+// ==========================================
+
+function drawDecorations() {
+
+    for (const decoration of decorations) {
+
+        if (decoration.type === "tree") {
+            drawTree(
+                decoration.x,
+                decoration.y
+            );
+        }
+
+        if (decoration.type === "rock") {
+            drawRock(
+                decoration.x,
+                decoration.y
+            );
+        }
+    }
+}
+
+// ==========================================
 // DRAW WORLD
 // ==========================================
 
@@ -232,9 +527,6 @@ function drawWorld() {
         canvas.height
     );
 
-    // Todo lo que pertenece al mundo
-    // se dibuja teniendo en cuenta la cámara.
-
     ctx.save();
 
     ctx.translate(
@@ -242,39 +534,13 @@ function drawWorld() {
         -camera.y
     );
 
-    // Zona de juego
+    drawZones();
 
-    ctx.fillStyle = "#26352b";
+    drawMapDetails();
 
-    ctx.fillRect(
-        0,
-        60,
-        world.width,
-        world.height - 60
-    );
+    drawDecorations();
 
-    // Paredes
-
-    for (const wall of walls) {
-
-        ctx.fillStyle = "#6b6b6b";
-
-        ctx.fillRect(
-            wall.x,
-            wall.y,
-            wall.width,
-            wall.height
-        );
-
-        ctx.strokeStyle = "#999999";
-
-        ctx.strokeRect(
-            wall.x,
-            wall.y,
-            wall.width,
-            wall.height
-        );
-    }
+    drawWalls();
 
     ctx.restore();
 }
