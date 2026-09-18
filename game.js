@@ -182,6 +182,66 @@ function isColliding(a, b) {
 }
 
 // ==========================================
+// GET DECORATION COLLISION BOX
+// ==========================================
+
+function getDecorationCollisionBox(decoration) {
+
+    if (decoration.type === "tree") {
+        return {
+            x: decoration.x - 18,
+            y: decoration.y - 10,
+            width: 36,
+            height: 55
+        };
+    }
+
+    if (decoration.type === "rock") {
+        return {
+            x: decoration.x - 22,
+            y: decoration.y - 15,
+            width: 44,
+            height: 30
+        };
+    }
+
+    return null;
+}
+
+// ==========================================
+// CHECK WORLD COLLISIONS
+// ==========================================
+
+function isBlocked(position) {
+
+    // Check walls
+
+    for (const wall of walls) {
+
+        if (isColliding(position, wall)) {
+            return true;
+        }
+    }
+
+    // Check trees and rocks
+
+    for (const decoration of decorations) {
+
+        const collisionBox =
+            getDecorationCollisionBox(decoration);
+
+        if (
+            collisionBox &&
+            isColliding(position, collisionBox)
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// ==========================================
 // PLAYER MOVEMENT
 // ==========================================
 
@@ -206,29 +266,33 @@ function movePlayer() {
         nextX += player.speed;
     }
 
-    const futurePosition = {
+    // Horizontal movement
+
+    const horizontalPosition = {
         x: nextX,
+        y: player.y,
+        width: player.width,
+        height: player.height
+    };
+
+    if (!isBlocked(horizontalPosition)) {
+        player.x = nextX;
+    }
+
+    // Vertical movement
+
+    const verticalPosition = {
+        x: player.x,
         y: nextY,
         width: player.width,
         height: player.height
     };
 
-    let blocked = false;
-
-    for (const wall of walls) {
-
-        if (isColliding(futurePosition, wall)) {
-            blocked = true;
-            break;
-        }
-    }
-
-    if (!blocked) {
-        player.x = nextX;
+    if (!isBlocked(verticalPosition)) {
         player.y = nextY;
     }
 
-    // Mantener al jugador dentro del mundo
+    // Keep player inside world
 
     if (player.x < 0) {
         player.x = 0;
@@ -561,7 +625,7 @@ function drawPlayer() {
         -camera.y
     );
 
-    // Sombra
+    // Shadow
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
 
@@ -579,7 +643,7 @@ function drawPlayer() {
 
     ctx.fill();
 
-    // Piernas
+    // Legs
 
     ctx.fillStyle = "#303030";
 
@@ -597,7 +661,7 @@ function drawPlayer() {
         20
     );
 
-    // Cuerpo
+    // Body
 
     ctx.fillStyle = "#00ff66";
 
@@ -608,7 +672,7 @@ function drawPlayer() {
         30
     );
 
-    // Cabeza
+    // Head
 
     ctx.fillStyle = "#f0b27a";
 
@@ -624,7 +688,7 @@ function drawPlayer() {
 
     ctx.fill();
 
-    // Pelo
+    // Hair
 
     ctx.fillStyle = "#202020";
 
@@ -640,7 +704,7 @@ function drawPlayer() {
 
     ctx.fill();
 
-    // Brazos
+    // Arms
 
     ctx.fillStyle = "#f0b27a";
 
@@ -658,7 +722,7 @@ function drawPlayer() {
         22
     );
 
-    // Ojos
+    // Eyes
 
     ctx.fillStyle = "#111111";
 
@@ -676,7 +740,7 @@ function drawPlayer() {
         3
     );
 
-    // Detalle del cuerpo
+    // Body detail
 
     ctx.fillStyle = "#ffffff";
 
