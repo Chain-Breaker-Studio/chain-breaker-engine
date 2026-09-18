@@ -9,43 +9,83 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
+// ==========================================
+// PLAYER
+// ==========================================
+
 const player = {
-    x: 300,
-    y: 200,
+    x: 500,
+    y: 300,
     width: 50,
     height: 70,
     speed: 5
 };
 
-const keys = {};
+// ==========================================
+// CAMERA
+// ==========================================
+
+const camera = {
+    x: 0,
+    y: 0
+};
 
 // ==========================================
 // WORLD
 // ==========================================
 
+const world = {
+    width: 2400,
+    height: 1600
+};
+
 const walls = [
     {
         x: 150,
         y: 120,
-        width: 300,
+        width: 500,
         height: 30
     },
     {
         x: 150,
-        y: 400,
-        width: 300,
+        y: 500,
+        width: 500,
         height: 30
     },
     {
-        x: 600,
-        y: 180,
+        x: 800,
+        y: 200,
         width: 30,
-        height: 250
+        height: 500
     },
     {
-        x: 800,
+        x: 1100,
         y: 100,
-        width: 250,
+        width: 600,
+        height: 30
+    },
+    {
+        x: 1100,
+        y: 500,
+        width: 600,
+        height: 30
+    },
+    {
+        x: 1800,
+        y: 250,
+        width: 30,
+        height: 500
+    },
+    {
+        x: 400,
+        y: 900,
+        width: 800,
+        height: 30
+    },
+    {
+        x: 1400,
+        y: 1000,
+        width: 600,
         height: 30
     }
 ];
@@ -53,6 +93,8 @@ const walls = [
 // ==========================================
 // INPUT
 // ==========================================
+
+const keys = {};
 
 window.addEventListener("keydown", (event) => {
     keys[event.key.toLowerCase()] = true;
@@ -74,6 +116,10 @@ function isColliding(a, b) {
         a.y + a.height > b.y
     );
 }
+
+// ==========================================
+// PLAYER MOVEMENT
+// ==========================================
 
 function movePlayer() {
 
@@ -117,7 +163,7 @@ function movePlayer() {
         player.y = nextY;
     }
 
-    // Mantener al jugador dentro de la pantalla
+    // Mantener al jugador dentro del mundo
 
     if (player.x < 0) {
         player.x = 0;
@@ -127,12 +173,47 @@ function movePlayer() {
         player.y = 60;
     }
 
-    if (player.x + player.width > canvas.width) {
-        player.x = canvas.width - player.width;
+    if (player.x + player.width > world.width) {
+        player.x = world.width - player.width;
     }
 
-    if (player.y + player.height > canvas.height) {
-        player.y = canvas.height - player.height;
+    if (player.y + player.height > world.height) {
+        player.y = world.height - player.height;
+    }
+}
+
+// ==========================================
+// CAMERA
+// ==========================================
+
+function updateCamera() {
+
+    camera.x =
+        player.x +
+        player.width / 2 -
+        canvas.width / 2;
+
+    camera.y =
+        player.y +
+        player.height / 2 -
+        canvas.height / 2;
+
+    // Limitar cámara al mundo
+
+    if (camera.x < 0) {
+        camera.x = 0;
+    }
+
+    if (camera.y < 0) {
+        camera.y = 0;
+    }
+
+    if (camera.x + canvas.width > world.width) {
+        camera.x = world.width - canvas.width;
+    }
+
+    if (camera.y + canvas.height > world.height) {
+        camera.y = world.height - canvas.height;
     }
 }
 
@@ -142,8 +223,8 @@ function movePlayer() {
 
 function drawWorld() {
 
-    // Fondo
     ctx.fillStyle = "#202020";
+
     ctx.fillRect(
         0,
         0,
@@ -151,16 +232,29 @@ function drawWorld() {
         canvas.height
     );
 
+    // Todo lo que pertenece al mundo
+    // se dibuja teniendo en cuenta la cámara.
+
+    ctx.save();
+
+    ctx.translate(
+        -camera.x,
+        -camera.y
+    );
+
     // Zona de juego
+
     ctx.fillStyle = "#26352b";
+
     ctx.fillRect(
         0,
         60,
-        canvas.width,
-        canvas.height - 60
+        world.width,
+        world.height - 60
     );
 
     // Paredes
+
     for (const wall of walls) {
 
         ctx.fillStyle = "#6b6b6b";
@@ -181,6 +275,8 @@ function drawWorld() {
             wall.height
         );
     }
+
+    ctx.restore();
 }
 
 // ==========================================
@@ -192,7 +288,15 @@ function drawPlayer() {
     const x = player.x;
     const y = player.y;
 
+    ctx.save();
+
+    ctx.translate(
+        -camera.x,
+        -camera.y
+    );
+
     // Sombra
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
 
     ctx.beginPath();
@@ -210,6 +314,7 @@ function drawPlayer() {
     ctx.fill();
 
     // Piernas
+
     ctx.fillStyle = "#303030";
 
     ctx.fillRect(
@@ -227,6 +332,7 @@ function drawPlayer() {
     );
 
     // Cuerpo
+
     ctx.fillStyle = "#00ff66";
 
     ctx.fillRect(
@@ -237,6 +343,7 @@ function drawPlayer() {
     );
 
     // Cabeza
+
     ctx.fillStyle = "#f0b27a";
 
     ctx.beginPath();
@@ -252,6 +359,7 @@ function drawPlayer() {
     ctx.fill();
 
     // Pelo
+
     ctx.fillStyle = "#202020";
 
     ctx.beginPath();
@@ -267,6 +375,7 @@ function drawPlayer() {
     ctx.fill();
 
     // Brazos
+
     ctx.fillStyle = "#f0b27a";
 
     ctx.fillRect(
@@ -284,6 +393,7 @@ function drawPlayer() {
     );
 
     // Ojos
+
     ctx.fillStyle = "#111111";
 
     ctx.fillRect(
@@ -301,6 +411,7 @@ function drawPlayer() {
     );
 
     // Detalle del cuerpo
+
     ctx.fillStyle = "#ffffff";
 
     ctx.fillRect(
@@ -309,15 +420,15 @@ function drawPlayer() {
         10,
         8
     );
+
+    ctx.restore();
 }
 
 // ==========================================
-// GAME LOOP
+// UI
 // ==========================================
 
-function gameLoop() {
-
-    drawWorld();
+function drawUI() {
 
     ctx.fillStyle = "white";
 
@@ -329,9 +440,30 @@ function gameLoop() {
         40
     );
 
+    ctx.font = "16px Arial";
+
+    ctx.fillText(
+        "WASD - Move",
+        20,
+        canvas.height - 20
+    );
+}
+
+// ==========================================
+// GAME LOOP
+// ==========================================
+
+function gameLoop() {
+
     movePlayer();
 
+    updateCamera();
+
+    drawWorld();
+
     drawPlayer();
+
+    drawUI();
 
     requestAnimationFrame(gameLoop);
 }
