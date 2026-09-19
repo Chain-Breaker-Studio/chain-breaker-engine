@@ -669,6 +669,59 @@ function drawDecorations() {
 }
 
 // ==========================================
+// DRAW INTERACTION INDICATOR
+// ==========================================
+
+function drawInteractionIndicator() {
+
+    if (!nearbyObject) {
+        return;
+    }
+
+    const centerX =
+        nearbyObject.x +
+        nearbyObject.width / 2;
+
+    const centerY =
+        nearbyObject.y - 20;
+
+    ctx.save();
+
+    ctx.translate(
+        -camera.x,
+        -camera.y
+    );
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        12,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle = "#202020";
+
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "E",
+        centerX,
+        centerY
+    );
+
+    ctx.restore();
+}
+
+// ==========================================
 // DRAW INTERACTIVE OBJECTS
 // ==========================================
 
@@ -755,6 +808,7 @@ function drawWorld() {
     drawMapDetails();
     drawDecorations();
     drawInteractiveObjects();
+    drawInteractionIndicator();
     drawWalls();
 
     ctx.restore();
