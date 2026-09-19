@@ -170,6 +170,7 @@ const interactiveObjects = [
 ];
 
 const interactionDistance = 100;
+
 let nearbyObject = null;
 
 // ==========================================
@@ -179,6 +180,7 @@ let nearbyObject = null;
 const keys = {};
 
 window.addEventListener("keydown", (event) => {
+
     const key = event.key.toLowerCase();
 
     keys[key] = true;
@@ -189,6 +191,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+
     keys[event.key.toLowerCase()] = false;
 });
 
@@ -197,6 +200,7 @@ window.addEventListener("keyup", (event) => {
 // ==========================================
 
 function isColliding(a, b) {
+
     return (
         a.x < b.x + b.width &&
         a.x + a.width > b.x &&
@@ -233,6 +237,7 @@ function getDistanceBetweenObjects(a, b) {
 function getDecorationCollisionBox(decoration) {
 
     if (decoration.type === "tree") {
+
         return {
             x: decoration.x - 18,
             y: decoration.y - 10,
@@ -242,6 +247,7 @@ function getDecorationCollisionBox(decoration) {
     }
 
     if (decoration.type === "rock") {
+
         return {
             x: decoration.x - 22,
             y: decoration.y - 15,
@@ -365,10 +371,11 @@ function updateNearbyObject() {
 
     for (const object of interactiveObjects) {
 
-        const distance = getDistanceBetweenObjects(
-            player,
-            object
-        );
+        const distance =
+            getDistanceBetweenObjects(
+                player,
+                object
+            );
 
         if (
             distance <= interactionDistance &&
@@ -381,7 +388,7 @@ function updateNearbyObject() {
 }
 
 // ==========================================
-// INTERACTION
+// INTERACTION SYSTEM
 // ==========================================
 
 function interactWithObject() {
@@ -390,7 +397,19 @@ function interactWithObject() {
         return;
     }
 
-    nearbyObject.active = !nearbyObject.active;
+    if (nearbyObject.type === "crate") {
+
+        interactWithCrate(nearbyObject);
+    }
+}
+
+// ==========================================
+// CRATE INTERACTION
+// ==========================================
+
+function interactWithCrate(crate) {
+
+    crate.active = !crate.active;
 }
 
 // ==========================================
@@ -632,6 +651,7 @@ function drawDecorations() {
     for (const decoration of decorations) {
 
         if (decoration.type === "tree") {
+
             drawTree(
                 decoration.x,
                 decoration.y
@@ -639,6 +659,7 @@ function drawDecorations() {
         }
 
         if (decoration.type === "rock") {
+
             drawRock(
                 decoration.x,
                 decoration.y
@@ -678,8 +699,6 @@ function drawInteractiveObjects() {
             object.width,
             object.height
         );
-
-        // Detalles de la caja
 
         ctx.strokeStyle = "#3a2415";
         ctx.lineWidth = 4;
