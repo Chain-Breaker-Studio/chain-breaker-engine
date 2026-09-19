@@ -410,6 +410,12 @@ function interactWithObject() {
 function interactWithCrate(crate) {
 
     crate.active = !crate.active;
+
+    if (crate.active) {
+        console.log("Has interactuado con la caja.");
+    } else {
+        console.log("Has dejado de interactuar con la caja.");
+    }
 }
 
 // ==========================================
