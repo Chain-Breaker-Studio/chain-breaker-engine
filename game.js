@@ -173,6 +173,9 @@ const interactionDistance = 100;
 
 let nearbyObject = null;
 
+let interactionMessage = "";
+let interactionMessageTimer = 0;
+
 // ==========================================
 // INPUT
 // ==========================================
@@ -412,10 +415,12 @@ function interactWithCrate(crate) {
     crate.active = !crate.active;
 
     if (crate.active) {
-        console.log("Has interactuado con la caja.");
+        interactionMessage = "Has interactuado con la caja.";
     } else {
-        console.log("Has dejado de interactuar con la caja.");
+        interactionMessage = "Has dejado de interactuar con la caja.";
     }
+
+    interactionMessageTimer = 180;
 }
 
 // ==========================================
@@ -982,6 +987,22 @@ function drawUI() {
             20,
             75
         );
+    }
+        if (interactionMessageTimer > 0) {
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "22px Arial";
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            interactionMessage,
+            canvas.width / 2,
+            canvas.height - 60
+        );
+
+        ctx.textAlign = "left";
+
+        interactionMessageTimer--;
     }
 }
 
